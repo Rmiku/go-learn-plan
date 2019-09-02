@@ -1,0 +1,2 @@
+# Golang learnings plan record
+
