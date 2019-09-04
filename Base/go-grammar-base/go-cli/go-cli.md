@@ -1,5 +1,7 @@
 # go命令行
 
+当前go版本 go version go1.12 windows/amd64
+
  - https://golang.org/cmd/go/
  - https://www.cnblogs.com/sunsky303/p/10788982.html
  - https://www.cntofu.com/book/19/index.html
@@ -151,3 +153,128 @@ go clean [clean flags] [build flags] [packages]
 
 -modcache   // 删除整个模块下载缓存，包括版本化依赖项的解压缩源代码
 ```
+
+### go doc
+
+```
+go doc [-u] [-c] [package|[package.]symbol[.methodOrField]]
+```
+
+go doc 打印附于Go语言程序(变量、常量、函数、结构体以及接口)实体上的文档
+
+```
+-all  // 显示包的所有文档
+
+-c  // 在匹配符号时大小写敏感
+
+-cmd  // 将main包视为常规包。否则在显示程序包的顶级文档时，将隐藏程序包主导出的符号。
+
+-src  // 显示符号的完整源代码。将显示其声明和定义的完整Go源，例如函数定义（包括正文），类型声明或封闭const 块。因此输出可能包括未导出的细节。
+
+-u  // 显示未导出的符号，方法和字段的文档。
+```
+
+### go env
+
+```
+go env [-json] [-u] [-w] [var ...]
+```
+
+打印Go环境信息。如果给出一个或多个变量名作为参数，则env在其自己的行上打印每个命名变量的值。
+
+```
+-json  // 以json格式打印环境变量
+
+-u     // 取消go env -w 设置命名环境变量，并还原为默认设置
+
+-w     // 将命名环境变量的默认设置更改为给定值, NAME = VALUE
+```
+
+### go fix
+
+```
+go fix [packages]
+```
+
+把指定 代码包 的所有 Go 语言源码文件中的旧版本代码修正为新版本的代码(调用新API的代码，以及新的语法)
+
+要使用特定选项运行修复，请运行“go tool fix”。（命令 go fix 其实是命令 go tool fix 的简单封装）
+
+### go fmt
+
+```
+go fmt [-n] [-x] [packages]
+```
+
+按照 Go 官方代码标准格式化代码
+
+```
+-n  // 打印将要执行的命令
+
+-x  // 在执行时打印命令
+```
+
+### go generate
+
+```
+go generate [-run regexp] [-n] [-v] [-x] [build flags] [file.go... | packages]
+```
+
+生成由现有文件中的指令描述的运行命令。这些命令可以运行任何进程，但目的是创建或更新Go源文件。
+
+Go generate永远不会通过go build，go get，go test等自动运行。它必须明确运行。
+
+
+```
+-run = ""  // 如果非空，则指定正则表达式以选择其完整原始源文本（不包括任何尾随空格和最终换行符）与表达式匹配的指令。
+
+-v  // 在处理包时打印包和文件的名称
+
+-n  // 打印将要执行的命令
+
+-x  // 在执行时打印命令
+```
+
+### go get
+
+```
+go get [-d] [-t] [-u] [-v] [-insecure] [build flags] [packages]
+```
+
+获取解析并将依赖项添加到当前开发模块
+
+默认情况下，get查找最新的标记发行版本
+
+可以通过在package参数中添加@version后缀来覆盖此默认版本选择
+
+对于存储在源控制存储库中的模块，版本后缀也可以是提交哈希，分支标识符或源控制系统已知的其他语法
+
+版本后缀@latest显式请求给定路径命名的模块的最新次要版本,后缀@upgrade与@latest类似, 后缀@patch请求最新的补丁版本
+
+```
+-d  // 下载构建命名包所需的源代码，包括下载必要的依赖项，但不构建和安装它们
+
+-t  // 下载构建指定包的测试所需的包
+
+-u  // 更新包和依赖 (当-t和-u标志一起使用时，get也会更新测试依赖项)
+
+-insecure  // 允许从存储库中提取并使用不安全的方案（如HTTP）解析自定义域
+
+-v  // 启用详细进度和调试输出。
+```
+
+### go install
+
+```
+go install [-i] [build flags] [packages]
+```
+
+安装编译并安装导入路径命名的包。
+
+可执行文件安装在GOBIN环境变量指定的目录中，如果未设置GOPATH环境变量，则默认为 \$GOPATH/bin 或 \$HOME/go/bin 。\$GOROOT中的可执行文件安装在 \$GOROOT/bin或 \$GOTOOLDIR而不是 \$GOBIN 中。
+
+```
+-i  // 安装包的依赖
+```
+
+### go list
