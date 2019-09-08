@@ -241,7 +241,7 @@ Go generate永远不会通过go build，go get，go test等自动运行。它必
 go get [-d] [-t] [-u] [-v] [-insecure] [build flags] [packages]
 ```
 
-获取解析并将依赖项添加到当前开发模块
+获取指定的包及其依赖项添加到当前开发模块
 
 默认情况下，get查找最新的标记发行版本
 
@@ -278,3 +278,129 @@ go install [-i] [build flags] [packages]
 ```
 
 ### go list
+
+```
+go list [-f format] [-json] [-m] [list flags] [build flags] [packages]
+```
+
+列表列出了命名包，每行一个。最常用的标志是-f和-json，它们控制为每个包打印的输出形式。
+
+```
+-f  // 使用包模板的语法指定列表的格式
+
+-json  // 使包数据以JSON格式打印，而不是使用模板格式。
+
+-m  // 列出模块而不是包
+```
+
+### go mod 
+
+```
+go mod <command> [arguments]
+```
+
+提供对模块操作的访问
+
+```
+download    下载模块到本地缓存
+> go mod download [-json] [modules]
+> -json 将下载一系列JSON对象打印到标准输出，描述每个下载的模块（或失败）
+
+edit        用工具或脚本编辑go.mod
+> go mod edit [editing flags] [go.mod]
+> Edit提供了一个命令行界面，用于编辑go.mod，主要用于工具或脚本
+> -fmt   重新格式化go.mod文件而不进行其他更改
+> -print 以文本格式打印最终的go.mod
+> -json  以JSON格式打印最终的go.mod文件
+
+graph       打印模块需求图
+> go mod graph
+> 打印模块依赖关系图
+
+init        初始化当前目录中的新模块
+> go mod init [module]
+> Init初始化并将新的go.mod写入当前目录，实际上创建了一个以当前目录为根的新模块,当前目录下go.mod文件不能存在
+
+tidy        添加缺失并删除未使用的模块
+> go mod tidy [-v]
+> -v  整理有关已删除模块的信息打印到标准错误
+
+vendor      制作依赖项的副本
+> go mod vendor [-v]
+> -v  使供应商将出售模块和包的名称打印为标准错误
+
+verify      验证依赖项已预期内容
+> go mod verify
+> 验证检查当前模块的依赖关系（存储在本地下载的源缓存中）自下载以来未被修改,如果所有模块都未修改，请验证打印“所有模块已验证”。否则，它会报告哪些模块已被更改
+
+why         解释为什么包或模块是必需的
+> go mod why [-m] [-vendor] packages...
+> -m  解释为什么将参数视为模块列表并找到每个模块中任何包的路径
+```
+
+### go run
+
+```
+go run [build flags] [-exec xprog] package [arguments ...]
+```
+
+运行编译并运行Go程序，默认情况下，go run直接运行已编译的二进制文件
+
+```
+-exec  // go run 使用xprog调用二进制文件
+```
+
+### go test
+
+```
+go test [build/test flags] [packages] [build/test flags & test binary flags]
+```
+
+go test命令用于对Go语言编写的程序进行测试。这种测试是以代码包为单位的,测试源码文件是名称以“_test.go”为后缀的、内含若干测试函数的源码文件。测试函数一般是以“Test”为名称前缀并有一个类型为“testing.T”的参数声明的函数.
+
+```
+-args  // 将命令行的其余部分（-args之后的所有内容）传递给测试二进制文件，取消解释并保持不变
+
+-c     // 生成用于运行测试的可执行文件，但不执行它
+
+-i     // 安装/重新安装运行测试所需的依赖包，但不编译和运行测试代码
+
+-json  // 将测试输出转换为适合自动处理的JSON
+
+-o     // 将测试二进制文件编译为指定文件,测试仍然运行
+```
+
+
+### go tool
+
+```
+go tool [-n] command [args...]
+```
+
+Tool运行由参数标识的go工具命,它打印已知工具列表。
+
+```
+-n  // 打印将要执行的命令
+```
+
+### go version 
+
+```
+go version
+```
+
+打印Go版本，由runtime.Version报告
+
+### go vet
+
+```
+go vet [-n] [-x] [-vettool prog] [build flags] [vet flags] [packages]
+```
+
+报告包中可能出现的错误
+
+```
+-n  // 打印将要执行的命令
+
+-x  // 在执行时打印命令
+```
