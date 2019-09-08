@@ -12,6 +12,24 @@
 #### 1)Go语法基础
 
 ##### A.Go命令行
+- go bug      // 启动错误报告
+- go build    // 编译包和依赖
+- go clean    // 移除对象文件和缓存文件
+- go doc      // 显示包或者符号的文档
+- go env      // 打印go的环境信息
+- go fix      // 更新包的代码为新版本
+- go fmt      // 运行gofmt对代码进行格式化
+- go generate // 从processing source生成go文件
+- go get      // 下载并安装包和依赖
+- go install  // 编译并安装包和依赖
+- go list     // 列出包或者模块列表
+- go mod      // 模块的维护
+- go run      // 编译并运行go程序
+- go test     // 测试包
+- go tool     // 运行go提供的工具
+- go version  // 打印go版本
+- go vet      // 报告包中可能出现的错误
+- 
 ##### B.常量，变量，类型，函数，包等
 ##### C.数组&amp;切片
 ##### D.指针，结构，方法

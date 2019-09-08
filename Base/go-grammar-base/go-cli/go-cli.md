@@ -33,8 +33,8 @@ The commands are:
         generate    generate Go files by processing source // 从processing source生成go文件
         get         download and install packages and dependencies // 下载并安装包和依赖
         install     compile and install packages and dependencies // 编译并安装包和依赖
-        list        list packages or modules // 包或者模块列表
-        mod         module maintenance // 模块的维修
+        list        list packages or modules // 列出包或者模块列表
+        mod         module maintenance // 模块的维护
         run         compile and run Go program // 编译并运行go程序
         test        test packages // 测试包
         tool        run specified go tool // 运行go提供的工具
