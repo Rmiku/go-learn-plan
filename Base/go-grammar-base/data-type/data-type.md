@@ -357,24 +357,24 @@ func (s Sum) getSum() int {
 ```
 abstract class SumAbstract
 {
-	private $a;
-	
-	private $b;
-	
+    private $a;
+
+    private $b;
+
     public function getSum(){}
 }
 
 class Sum extends SumAbstract
 {
     private $a;
-	
+
     private $b;
-	
-	public function __construct($a, $b)
-	{
-		$this->a = $a;
-		$this->b = $b;
-	}
+
+    public function __construct($a, $b)
+    {
+        $this->a = $a;
+        $this->b = $b;
+    }
 
     public function getSum()
     {
