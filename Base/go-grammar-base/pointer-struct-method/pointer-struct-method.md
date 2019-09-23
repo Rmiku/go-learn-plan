@@ -118,3 +118,224 @@ func swap(x, y *int){
     *x, *y = *y, *x
 }
 ```
+
+# 结构
+
+通过用自定义的方式形成新的类型，结构体是由一系列具有相同类型或不同类型的数据构成的数据集合。
+
+Go 语言中的类型可以被实例化，使用new或&构造的类型实例的类型是类型的指针。
+
+结构体成员是由一系列的成员变量构成，这些成员变量也被称为“字段”
+- 字段拥有自己的类型和值
+- 字段名在同一结构体里必须唯一
+- 字段的类型也可以是结构体，甚至是字段所在结构体的类型
+
+## 定义结构体
+
+```
+type name struct {
+    field1 type1
+    field2 type2
+    …
+}
+```
+例：
+```
+type Books struct {
+    id int
+    title string
+    author string
+    subject string
+}
+
+// 也可以写成单行
+type Books struct {
+    id int, title, author, subject string
+}
+
+```
+
+结构体的定义只是一种内存布局的描述，只有当结构体实例化时，才会真正地分配内存。
+
+一旦定义了结构体类型，它就能用于变量的声明
+
+```
+// 根据顺序赋值
+book1 := Books {1, "活着", "余华", "小说文学"}
+
+//根据字段名称赋值
+book2 := Books {id: 2, title: "平凡的世界", author: "路遥", subject: "小说文学"}
+```
+
+## 作为函数参数
+
+结构体类型的值可以作为参数传递给函数或者作为函数的返回值。
+
+```
+func main() {
+    book1 := Books {1, "活着", "余华", "小说文学"}
+	printBook(book1) // {1, "活着", "余华", "小说文学"}
+	editBook(&book1) 
+	printBook(book1) // {1, "活着", "测试余华", "小说文学"}
+	book2 := editBook2(book1)
+	printBook(book2) // {2, "许三观卖血记", "余华", "小说文学"}
+}
+
+func printBook(book Books) {
+	fmt.Printf("Book book_id : %d\n", book.id);
+	fmt.Printf("Book title : %s\n", book.title);
+	fmt.Printf("Book author : %s\n", book.author);
+	fmt.Printf("Book subject : %s\n", book.subject);
+	fmt.Printf("\n")
+}
+
+// 传递指针
+func editBook(book *Books) {
+	book.author = "测试余华"
+}
+
+// 作为返回值
+func editBook2(book Books) Books {
+	book.id = 2
+	book.title = "许三观卖血记"
+	book.author = "余华"
+	return book
+}
+```
+
+## 匿名函数结构体
+
+```
+// 匿名结构体
+func main() {
+	book1 := struct {
+		title string
+		author string
+	} {
+		"活着",
+		"余华",
+	}
+
+	printBooksType(book1)
+}
+
+func printBooksType(book struct {
+    title string
+    author string
+}) {
+    fmt.Printf("%v\n", book)
+}
+```
+
+### 初始化内嵌匿名结构体
+
+可以在定义的时候嵌入匿名结构体，不过在初始化结构时需要再次声明结构才能赋予数据
+
+```
+
+type People struct {
+	Name string
+	Attr struct {
+		Height, Weight, Sex string
+	}
+}
+
+
+func main () {
+
+	people1 := People {
+		Name: "Tom",
+		Attr: struct {
+			Height string
+			Weight string
+			Sex string
+		} {
+			"170cm",
+			"60kg",
+			"男",
+		},
+	}
+
+	fmt.Printf("%v", people1) // {Tom {170cm 60kg 男}}
+}
+
+```
+
+## 用作构造函数
+
+Go语言的类型或结构体没有构造函数的功能。但是可以使用结构体初始化的过程来模拟实现构造函数。
+
+### 模拟构造函数重载
+
+Go里没有函数重载，可以用不同的名称代表类的构造过程
+此处根据不同的cat属性，实例化了两个不同的cat类
+
+```
+package main
+
+import "fmt"
+
+type Cat struct {
+    Color string
+    Name  string
+}
+
+func main () {
+	cat1 := NewCatByColor("yellow")
+	cat2 := NewCatByName("tom")
+
+	fmt.Printf("%v\n", cat1) // &{yellow }
+	fmt.Printf("%v\n", cat2) // &{ tom}
+}
+
+func NewCatByName(name string) *Cat {
+    return &Cat{
+        Name: name,
+    }
+}
+
+func NewCatByColor(color string) *Cat {
+    return &Cat{
+        Color: color,
+    }
+}
+```
+
+### 模拟父级构造调用
+
+一个结构体可以嵌入另一个结构体中,可以达到实例化本身和基类的目的
+
+Cat 结构体类似于面向对象中的“基类”。BlackCat 嵌入 Cat 结构体，类似于面向对象中的“派生”。实例化时，BlackCat 中的 Cat 也会一并被实例化。
+
+```
+package main
+
+import "fmt"
+
+type Cat struct {
+    Color string
+    Name  string
+}
+
+type BlackCat struct {
+    Cat 
+}
+
+func main () {
+	cat := NewCatByColor("yellow")
+
+	fmt.Printf("%v\n", cat) // &{{yellow }}
+}
+
+func NewCat(name string) *Cat {
+    return &Cat{
+        Name: name,
+    }
+}
+
+func NewBlackCat(color string) *BlackCat {
+    cat := &BlackCat {}
+    cat.Color = color
+    return cat
+}
+```
