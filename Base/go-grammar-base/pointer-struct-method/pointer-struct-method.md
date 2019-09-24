@@ -339,3 +339,106 @@ func NewBlackCat(color string) *BlackCat {
     return cat
 }
 ```
+
+# 方法
+
+## 定义
+Go 方法是作用在接收器（receiver）上的一个函数，接收器是某种类型的变量。因此方法是一种特殊类型的函数。接收器类型可以是（除接口和指针外，但是它可以是任何其他允许类型的指针）任何类型。
+
+方法是函数，所以没有重载，但是如果基于接收器类型，是有重载的：具有同样名字的方法可以在 2 个或多个不同的接收器类型上存在。
+
+## 为结构体添加方法
+
+- 面向过程
+
+面向过程中没有“方法”概念，只能通过结构体和函数，由使用者使用函数参数和调用关系来形成接近“方法”的概念
+```
+type Bag struct {
+    items []int
+}
+
+// Insert操作*Bag结构体，且Bag与Insert()没有任何归属关系
+func Insert(b *Bag, itemid int) {
+    b.items = append(b.items, itemid)
+}
+
+func main() {
+    bag := new(Bag)
+    Insert(bag, 1001)
+}
+```
+
+- 为结构体添加方法
+
+```
+type Bag struct {
+    items []int
+}
+
+// (b *Bag) 就是接收器，即 Insert 作用的对象实例，每个方法只有一个接收器
+func (b *Bag) Insert(itemid int) {
+    b.items = append(b.items, itemid)
+}
+
+func main() {
+    b := new(Bag)
+    b.Insert(1001)
+}
+```
+
+## 接收器——方法作用的目标
+
+```
+func (接收器变量 接收器类型) 方法名(参数列表) (返回参数) {
+    函数体
+}
+```
+- 接收器变量：接收器中的参数变量名在命名时，官方建议使用接收器类型名的第一个小写字母
+- 接收器类型：接收器类型和参数类似，可以是指针类型和非指针类型（指针接收器、非指针接收器）
+
+### 指针类型的接收器
+
+针类型的接收器由一个结构体的指针组成，更接近于面向对象中的 this 或者 self。
+
+由于指针的特性，调用方法时，修改接收器指针的任意成员变量，在方法结束后，修改都是有效的。
+
+```
+type test struct {
+	v int
+}
+
+func (t *test) setValue(value int) {
+	t.v = value
+}
+
+func (t *test) value() int {
+	return t.v
+}
+
+func main () {
+	test1 := new(test)
+	test1.setValue(100)
+	fmt.Printf("t.v=%d", test1.value()) // t.v=100
+}
+```
+
+### 非指针类型的接收器
+
+当方法作用于非指针接收器时，Go语言会在代码运行时将接收器的值复制一份。在非指针接收器的方法中可以获取接收器的成员值，但修改后无效。
+
+```
+type test struct {
+	v int
+}
+
+func (t test) add(other test) test {
+	return test{t.v + other.v}
+}
+
+func main () {
+	test1 := test{1}
+	test2 := test{2}
+	result := test1.add(test2)
+	fmt.Printf("t.v=%d", result.v) // t.v=3
+}
+```
