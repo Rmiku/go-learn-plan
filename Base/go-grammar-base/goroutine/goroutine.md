@@ -317,5 +317,261 @@ for data := range ch {
 close(c)
 ```
 
-## WaitGroup(同步)
+## WaitGroup(等待组)
 
+sync 包提供了多个 goroutine 同步的机制，主要是通过 WaitGroup 实现的。
+
+waitGroup 的数据结构和操作如下:
+https://gowalker.org/sync#WaitGroup
+```
+type WaitGroup struct {
+    // contains filtered or unexported fields
+}
+
+// 添加等待信号
+func (wg *WaitGroup) Add(delta int) {}
+
+// 释放等待信号
+func (wg *WaitGroup) Done() {}
+
+// 等待
+func (wg *WaitGroup) Wait() {}
+```
+
+例子：
+
+```
+package main
+
+import (
+    "net/http"
+    "sync"
+)
+
+var wg sync.WaitGroup
+
+var urls = []string{
+    "http://www.baidu.com",
+    "http://www.sina.com",
+    "http://www.qq.com",
+}
+
+func main() {
+
+    for _, v := range urls {
+
+        wg.Add(1)
+
+        go func (url string)  {
+
+            // 结束当前 goproutine 后要给 wg 计数减1, wg.Done() 等价于 wg.Add(-1)
+            defer wg.Done()
+
+            response, err := http.Get(url)
+            if err == nil {
+                println(response.Status)
+            }
+        } (v)
+    }
+
+    wg.Wait()
+}
+```
+
+## Select(选择)
+
+select 是类 UNIX 系统提供的一个多路复用系统API，Go 借用了多路复用的概念，提供了 select 关键字，用于多路监听多个通道。
+
+### 使用select
+
+```
+select{
+    case 操作1:
+        响应操作1
+    case 操作2:
+        响应操作2
+    …
+    default:
+        没有操作情况
+}
+```
+- 每个 case 语句里必须是一个 IO 操作
+
+select 可以同时响应多个通道的操作，如果其中有一个或多个通道处于可读或者可写的状态，select 会随机选取一个处理，此时是非阻塞的。吐过没有一个通道时处于可读或者可写的状态，此时的 select 是阻塞的。
+
+例子：
+
+```
+package main
+
+func main() {
+
+    ch := make(chan int, 1)
+
+    go func(ch chan int) {
+        for {
+            // 循环写入 0 / 1 到通道里面
+            select {
+                case ch<- 0:
+                case ch<- 1:
+            }
+        }
+    } (ch)
+    
+    for i := 0; i < 10; i++ {
+        println(<-ch) // 随机输出 10个数字，值为 0 / 1
+    }
+}
+```
+
+## Mutex(互斥锁)
+
+sync 包提供了 Mutex 锁机制，Mutex 是最简单的一种锁类型，同时也比较暴力，当一个 goroutine 获得了 Mutex 后，其他 goroutine 就只能乖乖等到这个 goroutine 释放该 Mutex。
+
+Mutex 的数据结构和操作如下:
+https://gowalker.org/sync#Mutex
+
+```
+type Mutex struct {
+    // contains filtered or unexported fields
+}
+
+// 锁
+func (m *Mutex) Lock() {}
+
+// 解锁
+func (m *Mutex) Unlock() {}
+```
+
+例子：
+```
+package main
+
+import (
+	"fmt"
+    "sync"
+    "time"
+)
+
+var s string
+
+var m sync.Mutex
+
+func changeStrValue(str string) {
+	m.Lock()
+	defer m.Unlock()
+
+	s = str
+	fmt.Printf("%s", s)
+}
+
+func main() {
+
+    // 确保 hello 永远在 World 前输出
+	go changeStrValue("Hello ")
+    go changeStrValue("World!")
+    
+    // 睡眠一秒确保任务执行完毕
+    time.Sleep(time.Second)
+}
+```
+
+## RWMutex(读写互斥锁)
+
+sync 包提供了 RWMutex 锁机制，RWMutex 是经典的单写多读模型，在读锁占用的情况下，会阻止写，但不阻止读。
+
+- 在读锁占用的情况下，会阻止写，但不阻止读，也就是多个 goroutine 可同时获取读锁（调用 RLock() 方法
+- 而写锁（调用 Lock() 方法）会阻止任何其他 goroutine（无论读和写）进来，整个锁相当于由该 goroutine 独占
+
+Mutex 的数据结构和操作如下:
+https://gowalker.org/sync#RWMutex
+
+```
+type RWMutex struct {
+    // contains filtered or unexported fields
+}
+
+// 写锁
+func (rw *RWMutex) Lock() {}
+
+// 读锁
+func (rw *RWMutex) RLock() {}
+
+// RLocker返回一个Locker接口，该接口通过调用rw.RLock和rw.RUnlock来实现Lock和Unlock方法 ?
+func (rw *RWMutex) RLocker() Locker {}
+
+// 读锁解锁
+func (rw *RWMutex) RUnlock() {}
+
+// 写锁解锁
+func (rw *RWMutex) Unlock() {}
+```
+
+例子：
+
+```
+package main
+
+import (
+	"fmt"
+	"sync"
+	"time"
+)
+
+var n int
+
+var m sync.RWMutex
+
+func write(num int) {
+	m.Lock()
+	defer m.Unlock()
+
+	fmt.Printf("写 goroutine %d 写数据中...\n", num)
+	n = num
+	fmt.Printf("写 goroutine %d 写入结束，写入数据为 %d\n", num, n)
+}
+
+func read(num int) {
+	m.RLock()
+	defer m.RUnlock()
+
+	fmt.Printf("读 goroutine %d 读数据中...\n", num)
+	fmt.Printf("读 goroutine %d 读取结束，读取数据为 %d\n", num, n)
+}
+
+func main() {
+
+	for i := 0; i < 5; i++ {
+		go write(i + 1)
+	}
+
+	for i := 0; i < 5; i++ {
+		go read(i + 1)
+	}
+
+	time.Sleep(time.Second * 5)
+}
+
+// 写 goroutine 1 写数据中...
+// 写 goroutine 1 写入结束，写入数据为 1
+// 读 goroutine 1 读数据中...
+// 读 goroutine 1 读取结束，读取数据为 1
+// 读 goroutine 4 读数据中...
+// 读 goroutine 5 读数据中...
+// 读 goroutine 5 读取结束，读取数据为 1
+// 读 goroutine 3 读数据中...
+// 读 goroutine 3 读取结束，读取数据为 1
+// 读 goroutine 2 读数据中...
+// 读 goroutine 2 读取结束，读取数据为 1
+// 读 goroutine 4 读取结束，读取数据为 1
+// 写 goroutine 3 写数据中...
+// 写 goroutine 3 写入结束，写入数据为 3
+// 写 goroutine 5 写数据中...
+// 写 goroutine 5 写入结束，写入数据为 5
+// 写 goroutine 4 写数据中...
+// 写 goroutine 4 写入结束，写入数据为 4
+// 写 goroutine 2 写数据中...
+// 写 goroutine 2 写入结束，写入数据为 2
+```
+
+可以看出 读操作 可以并行处理，而且 读过程 中不允许写入，写操作 是阻塞的，同时只能有一个写。
