@@ -8,7 +8,7 @@ https://www.runoob.com/go/go-concurrent.html
 # 目录
 [TOC]
 
-## goroutine(并发)
+## goroutine
 
 Goroutine 是go的并发执行体，由 Go 运行时（runtime）管理。
 
@@ -98,7 +98,7 @@ func main() {
 3. func Gosched()
    放弃当前调度机会，将当前 goroutine 放在队列中等下次被调度
 
-## channel(通道)
+## channel
 
 Go的哲学：不要通过共享内存来通信，而应该通过通信来共享内存
 
@@ -317,7 +317,7 @@ for data := range ch {
 close(c)
 ```
 
-## WaitGroup(等待组)
+## WaitGroup
 
 sync 包提供了多个 goroutine 同步的机制，主要是通过 WaitGroup 实现的。
 
@@ -378,7 +378,7 @@ func main() {
 }
 ```
 
-## Select(选择)
+## Select
 
 select 是类 UNIX 系统提供的一个多路复用系统API，Go 借用了多路复用的概念，提供了 select 关键字，用于多路监听多个通道。
 
@@ -424,7 +424,7 @@ func main() {
 }
 ```
 
-## Mutex(互斥锁)
+## Mutex
 
 sync 包提供了 Mutex 锁机制，Mutex 是最简单的一种锁类型，同时也比较暴力，当一个 goroutine 获得了 Mutex 后，其他 goroutine 就只能乖乖等到这个 goroutine 释放该 Mutex。
 
@@ -476,7 +476,7 @@ func main() {
 }
 ```
 
-## RWMutex(读写互斥锁)
+## RWMutex
 
 sync 包提供了 RWMutex 锁机制，RWMutex 是经典的单写多读模型，在读锁占用的情况下，会阻止写，但不阻止读。
 
